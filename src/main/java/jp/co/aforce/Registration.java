@@ -42,18 +42,21 @@ public class Registration extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Connection con=null;
+		PreparedStatement st=null;
+		
 		try {
 			InitialContext ic=new InitialContext();
 			DataSource ds=(DataSource)ic.lookup(
 					"java:/comp/env/jdbc/login_db");
-			Connection con=ds.getConnection();
+			con=ds.getConnection();
 			
 			String id=request.getParameter("id");
 			String password=request.getParameter("password");
 			
 			con.setAutoCommit(false);
 			
-			PreparedStatement st=con.prepareStatement("insert into login values(?,?)");
+			st=con.prepareStatement("insert into login values(?,?)");
 			st.setString(1, id);
 			st.setString(2, password);
 			st.executeUpdate();
@@ -71,7 +74,7 @@ public class Registration extends HttpServlet {
 				RequestDispatcher rd = request.getRequestDispatcher("/jsp/regsuc.jsp");
 				rd.forward(request, response);
 			}else {
-				con.rollback();
+				response.sendRedirect("/jsp/regfail.jsp");
 			}
 			
 			con.setAutoCommit(true);
